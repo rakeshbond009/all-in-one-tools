@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Formatter - All-in-One Tools</title>
+    <meta name="description" content="Format and beautify your SQL queries with syntax highlighting. Free online SQL formatter tool.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="text-center mb-4">SQL Formatter</h1>
+                        <p class="text-center mb-4">Format and beautify your SQL queries with syntax highlighting</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="formattingStyle">
+                                        <option value="standard">Standard</option>
+                                        <option value="compact">Compact</option>
+                                        <option value="uppercase">Uppercase</option>
+                                        <option value="lowercase">Lowercase</option>
+                                    </select>
+                                    <label for="formattingStyle">Formatting Style</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="indentation">
+                                        <option value="2">2 spaces</option>
+                                        <option value="4" selected>4 spaces</option>
+                                        <option value="8">8 spaces</option>
+                                        <option value="tab">Tab</option>
+                                    </select>
+                                    <label for="indentation">Indentation</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Input SQL</h4>
+                                <textarea id="inputSQL" class="form-control" rows="10" placeholder="Enter your SQL query here..."></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Formatted SQL</h4>
+                                <div id="outputSQL"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <button class="btn btn-primary" onclick="formatSQL()">
+                                <i class="fas fa-magic"></i> Format SQL
+                            </button>
+                            <button class="btn btn-secondary ms-2" onclick="clearSQL()">
+                                <i class="fas fa-undo"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CodeMirror for output
+            const outputEditor = CodeMirror(document.getElementById('outputSQL'), {
+                mode: 'text/x-sql',
+                theme: 'monokai',
+                lineNumbers: true,
+                readOnly: true,
+                lineWrapping: true
+            });
+            
+            // Format SQL
+            window.formatSQL = function() {
+                const inputSQL = document.getElementById('inputSQL').value;
+                const formattingStyle = document.getElementById('formattingStyle').value;
+                const indentation = document.getElementById('indentation').value;
+                
+                if (!inputSQL.trim()) {
+                    alert('Please enter SQL query to format');
+                    return;
+                }
+                
+                // Basic SQL formatting
+                let formattedSQL = inputSQL
+                    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+                    .replace(/\s*([,;()])\s*/g, '$1 ') // Add spaces around commas, semicolons, and parentheses
+                    .replace(/\s+/g, ' '); // Replace multiple spaces with single space again
+                
+                // Apply formatting style
+                if (formattingStyle === 'uppercase') {
+                    formattedSQL = formattedSQL.toUpperCase();
+                } else if (formattingStyle === 'lowercase') {
+                    formattedSQL = formattedSQL.toLowerCase();
+                }
+                
+                // Apply indentation
+                const indent = indentation === 'tab' ? '\t' : ' '.repeat(parseInt(indentation));
+                formattedSQL = formatIndentation(formattedSQL, indent);
+                
+                // Update output
+                outputEditor.setValue(formattedSQL);
+            };
+            
+            // Clear SQL
+            window.clearSQL = function() {
+                document.getElementById('inputSQL').value = '';
+                outputEditor.setValue('');
+            };
+            
+            // Format indentation
+            function formatIndentation(sql, indent) {
+                const keywords = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'ORDER BY', 'HAVING', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'ON'];
+                let result = '';
+                let level = 0;
+                
+                // Split SQL into lines
+                const lines = sql.split('\n');
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    
+                    // Decrease level for closing parentheses
+                    if (line.includes(')')) {
+                        level = Math.max(0, level - 1);
+                    }
+                    
+                    // Add indentation
+                    result += indent.repeat(level) + line + '\n';
+                    
+                    // Increase level for opening parentheses
+                    if (line.includes('(')) {
+                        level++;
+                    }
+                    
+                    // Increase level for keywords
+                    for (let keyword of keywords) {
+                        if (line.toUpperCase().startsWith(keyword)) {
+                            level++;
+                            break;
+                        }
+                    }
+                }
+                
+                return result;
+            }
+            
+            // Add some additional styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .CodeMirror {
+                    height: 300px;
+                    border: 1px solid #ced4da;
+                    border-radius: 0.25rem;
+                }
+                
+                .CodeMirror-focused {
+                    border-color: #86b7fe;
+                    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                }
+                
+                #inputSQL {
+                    height: 300px;
+                    font-family: monospace;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html> 

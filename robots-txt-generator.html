@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robots.txt Generator - All-in-One Tools</title>
+    <meta name="description" content="Free online robots.txt generator. Create proper robots.txt files for your website.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Robots.txt Generator</h2>
+                        <p class="text-center mb-4">Create a robots.txt file to control search engine crawlers</p>
+
+                        <form id="robotsForm" class="mb-4">
+                            <div class="mb-3">
+                                <label class="form-label">User-agent Rules</label>
+                                <div id="userAgentRules">
+                                    <div class="user-agent-rule mb-3">
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">User-agent</span>
+                                            <input type="text" class="form-control agent-input" 
+                                                   placeholder="* or specific bot name" value="*">
+                                            <button type="button" class="btn btn-danger remove-rule">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="paths-list">
+                                            <div class="path-entry input-group mb-2">
+                                                <select class="form-select rule-type" style="max-width: 120px;">
+                                                    <option value="Allow">Allow</option>
+                                                    <option value="Disallow" selected>Disallow</option>
+                                                </select>
+                                                <input type="text" class="form-control path-input" 
+                                                       placeholder="/path/to/block">
+                                                <button type="button" class="btn btn-danger remove-path">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm add-path mt-2">
+                                            <i class="fas fa-plus"></i> Add Path
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary mt-2" id="addUserAgent">
+                                    <i class="fas fa-plus"></i> Add User-agent Rule
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="sitemapUrl" class="form-label">Sitemap URL (optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-sitemap"></i></span>
+                                    <input type="url" class="form-control" id="sitemapUrl" 
+                                           placeholder="https://example.com/sitemap.xml">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="crawlDelay" class="form-label">Crawl-delay (optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                    <input type="number" class="form-control" id="crawlDelay" 
+                                           placeholder="Enter delay in seconds" min="1" max="30">
+                                </div>
+                                <small class="text-muted">Recommended: 1-10 seconds</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-code"></i> Generate Robots.txt
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                                    <i class="fas fa-undo"></i> Clear
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="results" class="mt-4" style="display: none;">
+                            <h4>Generated Robots.txt</h4>
+                            <div class="alert alert-success mb-3" role="alert">
+                                <i class="fas fa-check-circle"></i> Robots.txt generated successfully!
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-primary btn-sm" onclick="copyRobots()">
+                                    <i class="fas fa-copy"></i> Copy to Clipboard
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="downloadRobots()">
+                                    <i class="fas fa-download"></i> Download robots.txt
+                                </button>
+                            </div>
+                            <pre class="bg-light p-3 rounded"><code id="robotsOutput"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Add User-agent rule
+        document.getElementById('addUserAgent').addEventListener('click', () => {
+            const ruleTemplate = document.querySelector('.user-agent-rule').cloneNode(true);
+            ruleTemplate.querySelector('.agent-input').value = '*';
+            ruleTemplate.querySelector('.path-input').value = '';
+            document.getElementById('userAgentRules').appendChild(ruleTemplate);
+            
+            // Add event listeners to new elements
+            addRuleEventListeners(ruleTemplate);
+        });
+
+        // Add path to existing rule
+        function addPathEventListener(button) {
+            button.addEventListener('click', function() {
+                const pathsList = this.previousElementSibling;
+                const pathTemplate = pathsList.querySelector('.path-entry').cloneNode(true);
+                pathTemplate.querySelector('.path-input').value = '';
+                pathsList.appendChild(pathTemplate);
+                
+                // Add remove path listener
+                pathTemplate.querySelector('.remove-path').addEventListener('click', function() {
+                    if (this.closest('.paths-list').children.length > 1) {
+                        this.closest('.path-entry').remove();
+                    }
+                });
+            });
+        }
+
+        // Add event listeners to rule elements
+        function addRuleEventListeners(rule) {
+            // Remove rule
+            rule.querySelector('.remove-rule').addEventListener('click', function() {
+                if (document.querySelectorAll('.user-agent-rule').length > 1) {
+                    this.closest('.user-agent-rule').remove();
+                }
+            });
+            
+            // Add path
+            addPathEventListener(rule.querySelector('.add-path'));
+            
+            // Remove path
+            rule.querySelectorAll('.remove-path').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.closest('.paths-list').children.length > 1) {
+                        this.closest('.path-entry').remove();
+                    }
+                });
+            });
+        }
+
+        // Initialize event listeners
+        document.querySelectorAll('.user-agent-rule').forEach(rule => {
+            addRuleEventListeners(rule);
+        });
+
+        // Generate robots.txt
+        document.getElementById('robotsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let robotsTxt = '';
+            
+            // Process each user-agent rule
+            document.querySelectorAll('.user-agent-rule').forEach(rule => {
+                const agent = rule.querySelector('.agent-input').value.trim();
+                if (agent) {
+                    robotsTxt += `User-agent: ${agent}\n`;
+                    
+                    // Add crawl-delay if specified
+                    const crawlDelay = document.getElementById('crawlDelay').value.trim();
+                    if (crawlDelay) {
+                        robotsTxt += `Crawl-delay: ${crawlDelay}\n`;
+                    }
+                    
+                    // Process paths
+                    rule.querySelectorAll('.path-entry').forEach(path => {
+                        const ruleType = path.querySelector('.rule-type').value;
+                        const pathValue = path.querySelector('.path-input').value.trim();
+                        if (pathValue) {
+                            robotsTxt += `${ruleType}: ${pathValue}\n`;
+                        }
+                    });
+                    
+                    robotsTxt += '\n';
+                }
+            });
+            
+            // Add sitemap if specified
+            const sitemapUrl = document.getElementById('sitemapUrl').value.trim();
+            if (sitemapUrl) {
+                robotsTxt += `Sitemap: ${sitemapUrl}\n`;
+            }
+            
+            document.getElementById('robotsOutput').textContent = robotsTxt;
+            document.getElementById('results').style.display = 'block';
+        });
+
+        function clearForm() {
+            // Reset to initial state with one user-agent rule
+            const userAgentRules = document.getElementById('userAgentRules');
+            const firstRule = document.querySelector('.user-agent-rule').cloneNode(true);
+            userAgentRules.innerHTML = '';
+            userAgentRules.appendChild(firstRule);
+            
+            // Reset inputs
+            firstRule.querySelector('.agent-input').value = '*';
+            firstRule.querySelector('.path-input').value = '';
+            addRuleEventListeners(firstRule);
+            
+            document.getElementById('sitemapUrl').value = '';
+            document.getElementById('crawlDelay').value = '';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function copyRobots() {
+            const robotsTxt = document.getElementById('robotsOutput').textContent;
+            navigator.clipboard.writeText(robotsTxt).then(() => {
+                alert('Robots.txt copied to clipboard!');
+            });
+        }
+
+        function downloadRobots() {
+            const robotsTxt = document.getElementById('robotsOutput').textContent;
+            const blob = new Blob([robotsTxt], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'robots.txt';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html> 

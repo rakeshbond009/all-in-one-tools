@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Counter - All-in-One Tools</title>
+    <meta name="description" content="Free online character counter. Count characters, words, and more in your text.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Character Counter</h2>
+                        <p class="text-center mb-4">Count characters, words, and more in your text</p>
+
+                        <div class="mb-4">
+                            <label for="textInput" class="form-label">Enter your text</label>
+                            <textarea class="form-control" id="textInput" rows="10" placeholder="Type or paste your text here..."></textarea>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="countSpaces" checked>
+                                    <label class="form-check-label" for="countSpaces">Include spaces</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="countNewlines" checked>
+                                    <label class="form-check-label" for="countNewlines">Include newlines</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="results" class="mt-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Characters</h5>
+                                            <p class="card-text display-4" id="charCount">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Words</h5>
+                                            <p class="card-text display-4" id="wordCount">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Lines</h5>
+                                            <p class="card-text display-4" id="lineCount">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Sentences</h5>
+                                            <p class="card-text display-4" id="sentenceCount">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const textInput = document.getElementById('textInput');
+            const countSpaces = document.getElementById('countSpaces');
+            const countNewlines = document.getElementById('countNewlines');
+
+            // Update counts on any change
+            textInput.addEventListener('input', updateCounts);
+            countSpaces.addEventListener('change', updateCounts);
+            countNewlines.addEventListener('change', updateCounts);
+
+            function updateCounts() {
+                const text = textInput.value;
+                const includeSpaces = countSpaces.checked;
+                const includeNewlines = countNewlines.checked;
+
+                // Character count
+                let charCount = text.length;
+                if (!includeSpaces) {
+                    charCount = text.replace(/\s/g, '').length;
+                }
+                if (!includeNewlines) {
+                    charCount = text.replace(/\n/g, '').length;
+                }
+                document.getElementById('charCount').textContent = charCount;
+
+                // Word count
+                const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+                document.getElementById('wordCount').textContent = words.length;
+
+                // Line count
+                const lines = text.split(/\r\n|\r|\n/).filter(line => line.length > 0);
+                document.getElementById('lineCount').textContent = lines.length;
+
+                // Sentence count
+                const sentences = text.split(/[.!?]+/).filter(sentence => sentence.trim().length > 0);
+                document.getElementById('sentenceCount').textContent = sentences.length;
+            }
+        });
+    </script>
+</body>
+</html> 

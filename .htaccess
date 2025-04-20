@@ -1,0 +1,19 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+# Handle regular tool paths
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ $1 [L]
+
+# BEGIN YOURLS
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# Handle short URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9]{5})$ /All%20in%20one%20tools/tools/redirect.php [L,QSA]
+</IfModule>
+# END YOURLS 

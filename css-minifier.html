@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Minifier - All-in-One Tools</title>
+    <meta name="description" content="Minify your CSS code to reduce file size. Free online CSS minifier tool.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="text-center mb-4">CSS Minifier</h1>
+                        <p class="text-center mb-4">Minify your CSS code to reduce file size</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="minificationOptions">
+                                        <option value="standard">Standard Minification</option>
+                                        <option value="aggressive">Aggressive Minification</option>
+                                        <option value="preserve-comments">Preserve Comments</option>
+                                    </select>
+                                    <label for="minificationOptions">Minification Options</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="outputFormat">
+                                        <option value="minified">Minified</option>
+                                        <option value="beautified">Beautified</option>
+                                    </select>
+                                    <label for="outputFormat">Output Format</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>CSS Input</h4>
+                                <textarea id="cssInput" class="form-control" rows="10" placeholder="Enter your CSS code here..."></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Minified CSS</h4>
+                                <div id="cssOutput"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <button class="btn btn-primary" onclick="minifyCSS()">
+                                <i class="fas fa-compress-alt"></i> Minify
+                            </button>
+                            <button class="btn btn-secondary ms-2" onclick="clearInput()">
+                                <i class="fas fa-undo"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CodeMirror for output
+            const outputEditor = CodeMirror(document.getElementById('cssOutput'), {
+                mode: 'css',
+                theme: 'monokai',
+                lineNumbers: true,
+                readOnly: true,
+                lineWrapping: true
+            });
+            
+            // Minify CSS
+            window.minifyCSS = function() {
+                const cssInput = document.getElementById('cssInput').value;
+                const minificationOptions = document.getElementById('minificationOptions').value;
+                const outputFormat = document.getElementById('outputFormat').value;
+                
+                if (!cssInput.trim()) {
+                    alert('Please enter CSS code to minify');
+                    return;
+                }
+                
+                // Minify CSS
+                let minifiedCSS = minifyCSSString(cssInput, minificationOptions);
+                
+                // Beautify if requested
+                if (outputFormat === 'beautified') {
+                    minifiedCSS = beautifyCSS(minifiedCSS);
+                }
+                
+                // Update output
+                outputEditor.setValue(minifiedCSS);
+            };
+            
+            // Clear input
+            window.clearInput = function() {
+                document.getElementById('cssInput').value = '';
+                outputEditor.setValue('');
+            };
+            
+            // Minify CSS string
+            function minifyCSSString(css, options) {
+                // Remove comments
+                if (options !== 'preserve-comments') {
+                    css = css.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '');
+                }
+                
+                // Remove whitespace
+                css = css.replace(/\s+/g, ' ');
+                
+                // Remove spaces around selectors and properties
+                css = css.replace(/\s*([{};:,])\s*/g, '$1');
+                
+                // Remove last semicolon before closing brace
+                css = css.replace(/;}/g, '}');
+                
+                // Remove spaces after commas
+                css = css.replace(/,\s*/g, ',');
+                
+                // Remove spaces around operators
+                css = css.replace(/\s*([=~|^$*]?=)\s*/g, '$1');
+                
+                // Remove units for zero values
+                if (options === 'aggressive') {
+                    css = css.replace(/(\d+)px/g, '$1');
+                    css = css.replace(/(\d+)em/g, '$1');
+                    css = css.replace(/(\d+)rem/g, '$1');
+                    css = css.replace(/(\d+)pt/g, '$1');
+                    css = css.replace(/(\d+)pc/g, '$1');
+                    css = css.replace(/(\d+)mm/g, '$1');
+                    css = css.replace(/(\d+)cm/g, '$1');
+                    css = css.replace(/(\d+)in/g, '$1');
+                }
+                
+                return css.trim();
+            }
+            
+            // Beautify CSS
+            function beautifyCSS(css) {
+                let result = '';
+                let indent = 0;
+                let inRule = false;
+                
+                // Split CSS into lines
+                const lines = css.split(';');
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    
+                    if (line.includes('{')) {
+                        // Opening brace
+                        result += ' '.repeat(indent) + line + '\n';
+                        indent += 4;
+                        inRule = true;
+                    } else if (line.includes('}')) {
+                        // Closing brace
+                        indent = Math.max(0, indent - 4);
+                        result += ' '.repeat(indent) + line + '\n';
+                        inRule = false;
+                    } else if (inRule) {
+                        // Property
+                        result += ' '.repeat(indent) + line + ';\n';
+                    } else {
+                        // Selector
+                        result += line + ';\n';
+                    }
+                }
+                
+                return result;
+            }
+            
+            // Add some additional styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .CodeMirror {
+                    height: 300px;
+                    border: 1px solid #ced4da;
+                    border-radius: 0.25rem;
+                }
+                
+                .CodeMirror-focused {
+                    border-color: #86b7fe;
+                    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                }
+                
+                #cssInput {
+                    height: 300px;
+                    font-family: monospace;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html> 

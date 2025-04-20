@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer - All-in-One Tools</title>
+    <meta name="description" content="Free online tool to resize images. Adjust width and height while maintaining aspect ratio.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Image Resizer</h2>
+                        <p class="text-center mb-4">Resize your images while maintaining quality</p>
+
+                        <div class="text-center mb-4">
+                            <div class="drop-zone" id="dropZone">
+                                <div class="drop-zone-content">
+                                    <i class="fas fa-expand fa-3x mb-3"></i>
+                                    <p class="mb-2">Drag and drop your image here</p>
+                                    <p class="small text-muted mb-3">or</p>
+                                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                        Choose File
+                                    </button>
+                                </div>
+                                <input type="file" id="fileInput" accept="image/*" class="d-none">
+                            </div>
+                        </div>
+
+                        <div id="imagePreview" class="text-center mb-4" style="display: none;">
+                            <h5>Original Image</h5>
+                            <img id="preview" src="" alt="Preview" class="img-fluid mb-3" style="max-height: 300px;">
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="widthInput" placeholder="Width">
+                                        <label for="widthInput">Width (px)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="heightInput" placeholder="Height">
+                                        <label for="heightInput">Height (px)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="maintainAspectRatio" checked>
+                                <label class="form-check-label" for="maintainAspectRatio">
+                                    Maintain aspect ratio
+                                </label>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-danger" onclick="removeImage()">
+                                    <i class="fas fa-trash-alt"></i> Remove
+                                </button>
+                                <button class="btn btn-success" onclick="resizeImage()">
+                                    <i class="fas fa-expand-arrows-alt"></i> Resize
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="result" class="text-center" style="display: none;">
+                            <h5>Resized Image</h5>
+                            <img id="resizedImage" src="" alt="Resized" class="img-fluid mb-3" style="max-height: 300px;">
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-primary" onclick="downloadImage()">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <style>
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .drop-zone:hover {
+            border-color: #0d6efd;
+            background: #f1f8ff;
+        }
+        .drop-zone.dragover {
+            border-color: #0d6efd;
+            background: #e7f1ff;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const imagePreview = document.getElementById('imagePreview');
+            const result = document.getElementById('result');
+            const widthInput = document.getElementById('widthInput');
+            const heightInput = document.getElementById('heightInput');
+            const maintainAspectRatio = document.getElementById('maintainAspectRatio');
+            let originalWidth, originalHeight, aspectRatio;
+
+            // Drag and drop handlers
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleFile(file);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFile(file);
+                }
+            });
+
+            function handleFile(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.onload = () => {
+                        originalWidth = preview.naturalWidth;
+                        originalHeight = preview.naturalHeight;
+                        aspectRatio = originalWidth / originalHeight;
+                        widthInput.value = originalWidth;
+                        heightInput.value = originalHeight;
+                    };
+                    imagePreview.style.display = 'block';
+                    result.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Handle dimension inputs
+            widthInput.addEventListener('input', () => {
+                if (maintainAspectRatio.checked) {
+                    heightInput.value = Math.round(widthInput.value / aspectRatio);
+                }
+            });
+
+            heightInput.addEventListener('input', () => {
+                if (maintainAspectRatio.checked) {
+                    widthInput.value = Math.round(heightInput.value * aspectRatio);
+                }
+            });
+        });
+
+        function removeImage() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function resizeImage() {
+            const preview = document.getElementById('preview');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const width = parseInt(document.getElementById('widthInput').value);
+            const height = parseInt(document.getElementById('heightInput').value);
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw resized image
+            ctx.drawImage(preview, 0, 0, width, height);
+
+            // Show result
+            const resizedImage = document.getElementById('resizedImage');
+            resizedImage.src = canvas.toDataURL();
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'resized-image.png';
+            link.href = document.getElementById('resizedImage').src;
+            link.click();
+        }
+    </script>
+</body>
+</html> 

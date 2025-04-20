@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Minifier - All-in-One Tools</title>
+    <meta name="description" content="Minify your JavaScript code to reduce file size. Free online JavaScript minifier tool.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="text-center mb-4">JavaScript Minifier</h1>
+                        <p class="text-center mb-4">Minify your JavaScript code to reduce file size</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="minificationOptions">
+                                        <option value="standard">Standard Minification</option>
+                                        <option value="aggressive">Aggressive Minification</option>
+                                        <option value="preserve-comments">Preserve Comments</option>
+                                    </select>
+                                    <label for="minificationOptions">Minification Options</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" id="outputFormat">
+                                        <option value="minified">Minified</option>
+                                        <option value="beautified">Beautified</option>
+                                    </select>
+                                    <label for="outputFormat">Output Format</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>JavaScript Input</h4>
+                                <textarea id="jsInput" class="form-control" rows="10" placeholder="Enter your JavaScript code here..."></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Minified JavaScript</h4>
+                                <div id="jsOutput"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <button class="btn btn-primary" onclick="minifyJS()">
+                                <i class="fas fa-compress-alt"></i> Minify
+                            </button>
+                            <button class="btn btn-secondary ms-2" onclick="clearInput()">
+                                <i class="fas fa-undo"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CodeMirror for output
+            const outputEditor = CodeMirror(document.getElementById('jsOutput'), {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                readOnly: true,
+                lineWrapping: true
+            });
+            
+            // Minify JavaScript
+            window.minifyJS = function() {
+                const jsInput = document.getElementById('jsInput').value;
+                const minificationOptions = document.getElementById('minificationOptions').value;
+                const outputFormat = document.getElementById('outputFormat').value;
+                
+                if (!jsInput.trim()) {
+                    alert('Please enter JavaScript code to minify');
+                    return;
+                }
+                
+                try {
+                    // Minify JavaScript
+                    let minifiedJS = minifyJSString(jsInput, minificationOptions);
+                    
+                    // Beautify if requested
+                    if (outputFormat === 'beautified') {
+                        minifiedJS = beautifyJS(minifiedJS);
+                    }
+                    
+                    // Update output
+                    outputEditor.setValue(minifiedJS);
+                } catch (error) {
+                    alert('Error minifying JavaScript: ' + error.message);
+                }
+            };
+            
+            // Clear input
+            window.clearInput = function() {
+                document.getElementById('jsInput').value = '';
+                outputEditor.setValue('');
+            };
+            
+            // Minify JavaScript string
+            function minifyJSString(js, options) {
+                // Remove comments
+                if (options !== 'preserve-comments') {
+                    js = js.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '');
+                }
+                
+                // Remove whitespace
+                js = js.replace(/\s+/g, ' ');
+                
+                // Remove spaces around operators
+                js = js.replace(/\s*([=+\-*\/%&|^<>!]?=)\s*/g, '$1');
+                
+                // Remove spaces around parentheses and brackets
+                js = js.replace(/\s*([(){}[\]])\s*/g, '$1');
+                
+                // Remove spaces after commas and semicolons
+                js = js.replace(/,\s*/g, ',');
+                js = js.replace(/;\s*/g, ';');
+                
+                // Remove spaces around dots
+                js = js.replace(/\s*\.\s*/g, '.');
+                
+                // Remove spaces around colons
+                js = js.replace(/\s*:\s*/g, ':');
+                
+                // Remove spaces around question marks
+                js = js.replace(/\s*\?\s*/g, '?');
+                
+                // Remove spaces around logical operators
+                js = js.replace(/\s*(&&|\|\|)\s*/g, '$1');
+                
+                // Remove spaces around comparison operators
+                js = js.replace(/\s*(==|===|!=|!==|<=|>=|<|>)\s*/g, '$1');
+                
+                // Remove spaces around arithmetic operators
+                js = js.replace(/\s*([+\-*\/%])\s*/g, '$1');
+                
+                // Remove spaces around bitwise operators
+                js = js.replace(/\s*([&|^~])\s*/g, '$1');
+                
+                // Remove spaces around assignment operators
+                js = js.replace(/\s*([+\-*\/%&|^]?=)\s*/g, '$1');
+                
+                // Remove spaces around increment/decrement operators
+                js = js.replace(/\s*(\+\+|--)\s*/g, '$1');
+                
+                // Remove spaces around typeof operator
+                js = js.replace(/\s*typeof\s*/g, 'typeof');
+                
+                // Remove spaces around new operator
+                js = js.replace(/\s*new\s*/g, 'new');
+                
+                // Remove spaces around delete operator
+                js = js.replace(/\s*delete\s*/g, 'delete');
+                
+                // Remove spaces around void operator
+                js = js.replace(/\s*void\s*/g, 'void');
+                
+                // Remove spaces around in operator
+                js = js.replace(/\s*in\s*/g, 'in');
+                
+                // Remove spaces around instanceof operator
+                js = js.replace(/\s*instanceof\s*/g, 'instanceof');
+                
+                // Remove spaces around return statement
+                js = js.replace(/\s*return\s*/g, 'return');
+                
+                // Remove spaces around break statement
+                js = js.replace(/\s*break\s*/g, 'break');
+                
+                // Remove spaces around continue statement
+                js = js.replace(/\s*continue\s*/g, 'continue');
+                
+                // Remove spaces around throw statement
+                js = js.replace(/\s*throw\s*/g, 'throw');
+                
+                // Remove spaces around try statement
+                js = js.replace(/\s*try\s*/g, 'try');
+                
+                // Remove spaces around catch statement
+                js = js.replace(/\s*catch\s*/g, 'catch');
+                
+                // Remove spaces around finally statement
+                js = js.replace(/\s*finally\s*/g, 'finally');
+                
+                // Remove spaces around if statement
+                js = js.replace(/\s*if\s*/g, 'if');
+                
+                // Remove spaces around else statement
+                js = js.replace(/\s*else\s*/g, 'else');
+                
+                // Remove spaces around for statement
+                js = js.replace(/\s*for\s*/g, 'for');
+                
+                // Remove spaces around while statement
+                js = js.replace(/\s*while\s*/g, 'while');
+                
+                // Remove spaces around do statement
+                js = js.replace(/\s*do\s*/g, 'do');
+                
+                // Remove spaces around switch statement
+                js = js.replace(/\s*switch\s*/g, 'switch');
+                
+                // Remove spaces around case statement
+                js = js.replace(/\s*case\s*/g, 'case');
+                
+                // Remove spaces around default statement
+                js = js.replace(/\s*default\s*/g, 'default');
+                
+                // Remove spaces around function statement
+                js = js.replace(/\s*function\s*/g, 'function');
+                
+                // Remove spaces around var statement
+                js = js.replace(/\s*var\s*/g, 'var');
+                
+                // Remove spaces around let statement
+                js = js.replace(/\s*let\s*/g, 'let');
+                
+                // Remove spaces around const statement
+                js = js.replace(/\s*const\s*/g, 'const');
+                
+                // Remove spaces around class statement
+                js = js.replace(/\s*class\s*/g, 'class');
+                
+                // Remove spaces around extends statement
+                js = js.replace(/\s*extends\s*/g, 'extends');
+                
+                // Remove spaces around super statement
+                js = js.replace(/\s*super\s*/g, 'super');
+                
+                // Remove spaces around this statement
+                js = js.replace(/\s*this\s*/g, 'this');
+                
+                // Remove spaces around null statement
+                js = js.replace(/\s*null\s*/g, 'null');
+                
+                // Remove spaces around true statement
+                js = js.replace(/\s*true\s*/g, 'true');
+                
+                // Remove spaces around false statement
+                js = js.replace(/\s*false\s*/g, 'false');
+                
+                // Remove spaces around undefined statement
+                js = js.replace(/\s*undefined\s*/g, 'undefined');
+                
+                // Remove spaces around NaN statement
+                js = js.replace(/\s*NaN\s*/g, 'NaN');
+                
+                // Remove spaces around Infinity statement
+                js = js.replace(/\s*Infinity\s*/g, 'Infinity');
+                
+                return js.trim();
+            }
+            
+            // Beautify JavaScript
+            function beautifyJS(js) {
+                let result = '';
+                let indent = 0;
+                let inBlock = false;
+                
+                // Split JavaScript into lines
+                const lines = js.split(';');
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    
+                    if (line.includes('{')) {
+                        // Opening brace
+                        result += ' '.repeat(indent) + line + '\n';
+                        indent += 4;
+                        inBlock = true;
+                    } else if (line.includes('}')) {
+                        // Closing brace
+                        indent = Math.max(0, indent - 4);
+                        result += ' '.repeat(indent) + line + '\n';
+                        inBlock = false;
+                    } else if (inBlock) {
+                        // Inside block
+                        result += ' '.repeat(indent) + line + ';\n';
+                    } else {
+                        // Outside block
+                        result += line + ';\n';
+                    }
+                }
+                
+                return result;
+            }
+            
+            // Add some additional styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .CodeMirror {
+                    height: 300px;
+                    border: 1px solid #ced4da;
+                    border-radius: 0.25rem;
+                }
+                
+                .CodeMirror-focused {
+                    border-color: #86b7fe;
+                    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                }
+                
+                #jsInput {
+                    height: 300px;
+                    font-family: monospace;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html> 

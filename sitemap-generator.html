@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitemap Generator - All-in-One Tools</title>
+    <meta name="description" content="Free online sitemap generator. Create XML sitemaps for your website.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Sitemap Generator</h2>
+                        <p class="text-center mb-4">Generate XML sitemaps for your website</p>
+
+                        <form id="sitemapForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="websiteUrl" class="form-label">Website URL</label>
+                                <input type="url" class="form-control" id="websiteUrl" 
+                                       placeholder="https://example.com" required>
+                                <small class="text-muted">Enter your website's root URL</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">URLs to include</label>
+                                <div id="urlList">
+                                    <div class="url-entry mb-2">
+                                        <div class="input-group">
+                                            <input type="url" class="form-control url-input" 
+                                                   placeholder="https://example.com/page">
+                                            <select class="form-select changefreq-select" style="max-width: 120px;">
+                                                <option value="always">Always</option>
+                                                <option value="hourly">Hourly</option>
+                                                <option value="daily" selected>Daily</option>
+                                                <option value="weekly">Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                                <option value="yearly">Yearly</option>
+                                                <option value="never">Never</option>
+                                            </select>
+                                            <select class="form-select priority-select" style="max-width: 100px;">
+                                                <option value="1.0">1.0</option>
+                                                <option value="0.9">0.9</option>
+                                                <option value="0.8" selected>0.8</option>
+                                                <option value="0.7">0.7</option>
+                                                <option value="0.6">0.6</option>
+                                                <option value="0.5">0.5</option>
+                                            </select>
+                                            <button type="button" class="btn btn-danger remove-url">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary mt-2" id="addUrl">
+                                    <i class="fas fa-plus"></i> Add URL
+                                </button>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-code"></i> Generate Sitemap
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                                    <i class="fas fa-undo"></i> Clear
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="results" class="mt-4" style="display: none;">
+                            <h4>Generated Sitemap</h4>
+                            <div class="alert alert-success mb-3" role="alert">
+                                <i class="fas fa-check-circle"></i> Sitemap generated successfully!
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-primary btn-sm" onclick="copySitemap()">
+                                    <i class="fas fa-copy"></i> Copy to Clipboard
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="downloadSitemap()">
+                                    <i class="fas fa-download"></i> Download sitemap.xml
+                                </button>
+                            </div>
+                            <pre class="bg-light p-3 rounded"><code id="sitemapOutput"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Add URL entry
+        document.getElementById('addUrl').addEventListener('click', () => {
+            const urlEntry = document.querySelector('.url-entry').cloneNode(true);
+            urlEntry.querySelector('.url-input').value = '';
+            document.getElementById('urlList').appendChild(urlEntry);
+            
+            // Add remove button functionality
+            urlEntry.querySelector('.remove-url').addEventListener('click', function() {
+                this.closest('.url-entry').remove();
+            });
+        });
+
+        // Remove URL entry
+        document.querySelectorAll('.remove-url').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.url-entry').remove();
+            });
+        });
+
+        // Generate sitemap
+        document.getElementById('sitemapForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const websiteUrl = document.getElementById('websiteUrl').value.trim();
+            const urls = [];
+            
+            document.querySelectorAll('.url-entry').forEach(entry => {
+                const url = entry.querySelector('.url-input').value.trim();
+                if (url) {
+                    urls.push({
+                        loc: url,
+                        lastmod: new Date().toISOString().split('T')[0],
+                        changefreq: entry.querySelector('.changefreq-select').value,
+                        priority: entry.querySelector('.priority-select').value
+                    });
+                }
+            });
+
+            const sitemap = generateSitemap(urls);
+            document.getElementById('sitemapOutput').textContent = sitemap;
+            document.getElementById('results').style.display = 'block';
+        });
+
+        function generateSitemap(urls) {
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+            
+            urls.forEach(url => {
+                xml += '   <url>\n';
+                xml += `      <loc>${url.loc}</loc>\n`;
+                xml += `      <lastmod>${url.lastmod}</lastmod>\n`;
+                xml += `      <changefreq>${url.changefreq}</changefreq>\n`;
+                xml += `      <priority>${url.priority}</priority>\n`;
+                xml += '   </url>\n';
+            });
+            
+            xml += '</urlset>';
+            return xml;
+        }
+
+        function clearForm() {
+            document.getElementById('websiteUrl').value = '';
+            document.querySelectorAll('.url-entry').forEach((entry, index) => {
+                if (index === 0) {
+                    entry.querySelector('.url-input').value = '';
+                } else {
+                    entry.remove();
+                }
+            });
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function copySitemap() {
+            const sitemapText = document.getElementById('sitemapOutput').textContent;
+            navigator.clipboard.writeText(sitemapText).then(() => {
+                alert('Sitemap copied to clipboard!');
+            });
+        }
+
+        function downloadSitemap() {
+            const sitemapText = document.getElementById('sitemapOutput').textContent;
+            const blob = new Blob([sitemapText], { type: 'text/xml' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sitemap.xml';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html> 

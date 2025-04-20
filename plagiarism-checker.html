@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plagiarism Checker - All-in-One Tools</title>
+    <meta name="description" content="Free online plagiarism checker. Check your text for potential plagiarism.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .highlight {
+            background-color: #ffd7d7;
+            padding: 2px 4px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #resultsList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #analyzedText {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Plagiarism Checker</h2>
+                        <p class="text-center mb-4">Check your text for potential plagiarism</p>
+
+                        <form id="plagiarismForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="inputText" class="form-label">Enter Text</label>
+                                <textarea class="form-control" id="inputText" rows="8" 
+                                          placeholder="Type or paste your text here..." required></textarea>
+                                <small class="text-muted">Maximum 1000 words per check</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Check for Plagiarism
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearText()">
+                                    <i class="fas fa-undo"></i> Clear
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="loading" class="text-center" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Analyzing text...</p>
+                        </div>
+
+                        <div id="results" class="mt-4" style="display: none;">
+                            <h4>Results</h4>
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle"></i> Click on highlighted text to see details
+                            </div>
+                            
+                            <div class="card mb-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Analysis Results</h5>
+                                    <span id="similarityScore" class="badge bg-primary">0%</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="progress mb-3">
+                                        <div id="similarityBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div id="analysisDetails">
+                                        <p><strong>Total Words:</strong> <span id="wordCount">0</span></p>
+                                        <p><strong>Common Phrases Found:</strong> <span id="phraseCount">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Analyzed Text</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="analyzedText" class="bg-light p-3 rounded mb-3"></div>
+                                    <div id="resultsList">
+                                        <!-- Results will be listed here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Common academic phrases to check for
+        const commonPhrases = [
+            "in other words",
+            "on the other hand",
+            "as a matter of fact",
+            "due to the fact that",
+            "in order to",
+            "for the purpose of",
+            "in the event that",
+            "by means of",
+            "in the process of",
+            "with regard to",
+            "in terms of",
+            "in light of",
+            "as a result of",
+            "in spite of",
+            "with respect to",
+            "according to",
+            "based on the",
+            "in addition to",
+            "in relation to",
+            "in accordance with"
+        ];
+
+        document.getElementById('plagiarismForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            checkPlagiarism();
+        });
+
+        function checkPlagiarism() {
+            const text = document.getElementById('inputText').value.trim();
+            
+            if (!text) {
+                alert('Please enter some text to check.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            // Process the text
+            setTimeout(() => {
+                analyzeText(text);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+            }, 1000);
+        }
+
+        function analyzeText(text) {
+            // Split into sentences and words
+            const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s);
+            const words = text.toLowerCase().split(/\s+/).filter(w => w);
+            
+            // Find common phrases
+            const foundPhrases = [];
+            commonPhrases.forEach(phrase => {
+                const regex = new RegExp(phrase, 'gi');
+                let match;
+                while ((match = regex.exec(text)) !== null) {
+                    foundPhrases.push({
+                        phrase: match[0],
+                        index: match.index,
+                        length: match[0].length
+                    });
+                }
+            });
+
+            // Calculate similarity score based on found phrases
+            const similarityScore = Math.min(
+                Math.round((foundPhrases.length / sentences.length) * 100),
+                100
+            );
+
+            // Update UI
+            document.getElementById('wordCount').textContent = words.length;
+            document.getElementById('phraseCount').textContent = foundPhrases.length;
+            document.getElementById('similarityScore').textContent = `${similarityScore}%`;
+            
+            const similarityBar = document.getElementById('similarityBar');
+            similarityBar.style.width = `${similarityScore}%`;
+            similarityBar.className = `progress-bar ${similarityScore > 20 ? 'bg-warning' : 'bg-success'}`;
+
+            // Display analyzed text with highlights
+            let displayText = text;
+            foundPhrases.sort((a, b) => b.index - a.index).forEach(match => {
+                const before = displayText.substring(0, match.index);
+                const highlighted = displayText.substring(match.index, match.index + match.length);
+                const after = displayText.substring(match.index + match.length);
+                
+                displayText = before + 
+                    `<span class="highlight" title="Common phrase found">${highlighted}</span>` + 
+                    after;
+            });
+
+            document.getElementById('analyzedText').innerHTML = displayText;
+            
+            // Display results list
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            
+            if (foundPhrases.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> No common phrases found. Your text appears to be original.
+                    </div>`;
+            } else {
+                const uniquePhrases = [...new Set(foundPhrases.map(p => p.phrase))];
+                uniquePhrases.forEach(phrase => {
+                    const count = foundPhrases.filter(p => p.phrase === phrase).length;
+                    const div = document.createElement('div');
+                    div.className = 'alert alert-warning';
+                    div.innerHTML = `
+                        <strong>Common Phrase:</strong> "${phrase}"
+                        <br>
+                        <small>Found ${count} time${count > 1 ? 's' : ''} in your text</small>`;
+                    resultsList.appendChild(div);
+                });
+            }
+        }
+
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 

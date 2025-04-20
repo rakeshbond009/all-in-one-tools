@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator - All-in-One Tools</title>
+    <meta name="description" content="Advanced scientific calculator with trigonometric, logarithmic, and other mathematical functions. Free online calculator tool.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="text-center mb-4">Scientific Calculator</h1>
+                        <p class="text-center mb-4">Advanced calculator with scientific functions</p>
+                        
+                        <div class="calculator">
+                            <div class="display mb-3">
+                                <input type="text" class="form-control form-control-lg text-end" id="display" readonly>
+                                <input type="text" class="form-control text-end" id="expression" readonly>
+                            </div>
+                            
+                            <div class="buttons">
+                                <div class="row g-2">
+                                    <!-- Function Buttons -->
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('sin(')">sin</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('cos(')">cos</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('tan(')">tan</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('log(')">log</button>
+                                    </div>
+                                    
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('asin(')">sin⁻¹</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('acos(')">cos⁻¹</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('atan(')">tan⁻¹</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('ln(')">ln</button>
+                                    </div>
+                                    
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('Math.PI')">π</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('Math.E')">e</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('Math.sqrt(')">√</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-secondary w-100" onclick="calculate('Math.pow(')">x^y</button>
+                                    </div>
+                                    
+                                    <!-- Number Buttons -->
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('7')">7</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('8')">8</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('9')">9</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-danger w-100" onclick="clearDisplay()">C</button>
+                                    </div>
+                                    
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('4')">4</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('5')">5</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('6')">6</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-primary w-100" onclick="calculate('*')">×</button>
+                                    </div>
+                                    
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('1')">1</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('2')">2</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('3')">3</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-primary w-100" onclick="calculate('/')">÷</button>
+                                    </div>
+                                    
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('0')">0</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-light w-100" onclick="calculate('.')">.</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-primary w-100" onclick="calculate('+')">+</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="btn btn-primary w-100" onclick="calculate('-')">-</button>
+                                    </div>
+                                    
+                                    <div class="col-6">
+                                        <button class="btn btn-light w-100" onclick="calculate('(')">(</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-light w-100" onclick="calculate(')')">)</button>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <button class="btn btn-success w-100" onclick="calculate('=')">=</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        let expression = '';
+        
+        function calculate(value) {
+            const display = document.getElementById('display');
+            const exprDisplay = document.getElementById('expression');
+            
+            if (value === '=') {
+                try {
+                    // Replace special functions with Math functions
+                    let evalExpr = expression
+                        .replace(/sin\(/g, 'Math.sin(')
+                        .replace(/cos\(/g, 'Math.cos(')
+                        .replace(/tan\(/g, 'Math.tan(')
+                        .replace(/asin\(/g, 'Math.asin(')
+                        .replace(/acos\(/g, 'Math.acos(')
+                        .replace(/atan\(/g, 'Math.atan(')
+                        .replace(/log\(/g, 'Math.log10(')
+                        .replace(/ln\(/g, 'Math.log(')
+                        .replace(/√\(/g, 'Math.sqrt(')
+                        .replace(/\^/g, '**');
+                    
+                    const result = eval(evalExpr);
+                    display.value = result;
+                    exprDisplay.value = expression + ' =';
+                    expression = result.toString();
+                } catch (error) {
+                    display.value = 'Error';
+                    exprDisplay.value = '';
+                    expression = '';
+                }
+            } else if (value === 'C') {
+                clearDisplay();
+            } else {
+                expression += value;
+                display.value = expression;
+                exprDisplay.value = '';
+            }
+        }
+        
+        function clearDisplay() {
+            expression = '';
+            document.getElementById('display').value = '';
+            document.getElementById('expression').value = '';
+        }
+        
+        // Add calculator specific styles
+        const scientificCalcStyles = document.createElement('style');
+        scientificCalcStyles.textContent = `
+            .calculator {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            
+            .display {
+                margin-bottom: 1rem;
+            }
+            
+            .buttons .btn {
+                font-size: 1.2rem;
+                padding: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            #display {
+                font-size: 2rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+            
+            #expression {
+                font-size: 1rem;
+                color: #6c757d;
+            }
+        `;
+        document.head.appendChild(scientificCalcStyles);
+    </script>
+</body>
+</html> 

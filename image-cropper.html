@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Cropper - All-in-One Tools</title>
+    <meta name="description" content="Free online tool to crop images. Select and crop specific areas of your images.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Image Cropper</h2>
+                        <p class="text-center mb-4">Select and crop specific areas of your images</p>
+
+                        <div id="uploadSection" class="text-center mb-4">
+                            <div class="drop-zone" id="dropZone">
+                                <div class="drop-zone-content">
+                                    <i class="fas fa-crop fa-3x mb-3"></i>
+                                    <p class="mb-2">Drag and drop your image here</p>
+                                    <p class="small text-muted mb-3">or</p>
+                                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                        Choose File
+                                    </button>
+                                </div>
+                                <input type="file" id="fileInput" accept="image/*" class="d-none">
+                            </div>
+                        </div>
+
+                        <div id="cropperSection" style="display: none;">
+                            <div class="img-container mb-3">
+                                <img id="image" src="" alt="Source Image">
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="setDragMode" data-option="move">
+                                            <i class="fa fa-arrows"></i> Move
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="setDragMode" data-option="crop">
+                                            <i class="fa fa-crop"></i> Crop
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="zoom" data-option="0.1">
+                                            <i class="fa fa-search-plus"></i> Zoom In
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="zoom" data-option="-0.1">
+                                            <i class="fa fa-search-minus"></i> Zoom Out
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="rotate" data-option="-90">
+                                            <i class="fa fa-rotate-left"></i> Rotate Left
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="rotate" data-option="90">
+                                            <i class="fa fa-rotate-right"></i> Rotate Right
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="scaleX" data-option="-1">
+                                            <i class="fa fa-arrows-h"></i> Flip Horizontal
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" data-method="scaleY" data-option="-1">
+                                            <i class="fa fa-arrows-v"></i> Flip Vertical
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-danger w-100" onclick="removeImage()">
+                                        <i class="fas fa-trash-alt"></i> Remove
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="btn btn-success w-100" onclick="cropImage()">
+                                        <i class="fas fa-crop"></i> Crop and Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <style>
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .drop-zone:hover {
+            border-color: #0d6efd;
+            background: #f1f8ff;
+        }
+        .drop-zone.dragover {
+            border-color: #0d6efd;
+            background: #e7f1ff;
+        }
+        .img-container {
+            max-height: 500px;
+            margin-bottom: 1rem;
+        }
+        .img-container img {
+            max-width: 100%;
+            max-height: 500px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const image = document.getElementById('image');
+            let cropper;
+
+            // Drag and drop handlers
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleFile(file);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFile(file);
+                }
+            });
+
+            function handleFile(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    image.src = e.target.result;
+                    document.getElementById('uploadSection').style.display = 'none';
+                    document.getElementById('cropperSection').style.display = 'block';
+                    
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    
+                    cropper = new Cropper(image, {
+                        aspectRatio: NaN,
+                        viewMode: 2,
+                        responsive: true,
+                        restore: false
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Handle cropper buttons
+            document.querySelectorAll('[data-method]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const method = this.getAttribute('data-method');
+                    const option = this.getAttribute('data-option');
+                    if (method === 'scaleX' || method === 'scaleY') {
+                        cropper[method](option);
+                        // Toggle scale
+                        this.setAttribute('data-option', -option);
+                    } else {
+                        cropper[method](option);
+                    }
+                });
+            });
+
+            window.cropImage = function() {
+                const canvas = cropper.getCroppedCanvas();
+                const link = document.createElement('a');
+                link.download = 'cropped-image.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            };
+
+            window.removeImage = function() {
+                if (cropper) {
+                    cropper.destroy();
+                }
+                document.getElementById('fileInput').value = '';
+                document.getElementById('uploadSection').style.display = 'block';
+                document.getElementById('cropperSection').style.display = 'none';
+            };
+        });
+    </script>
+</body>
+</html> 

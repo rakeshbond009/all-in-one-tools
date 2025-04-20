@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter - All-in-One Tools</title>
+    <meta name="description" content="Convert between different units of measurement including length, weight, temperature, and more.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="text-center mb-4">Unit Converter</h1>
+                        <p class="text-center mb-4">Convert between different units of measurement</p>
+                        
+                        <form id="converterForm">
+                            <div class="mb-3">
+                                <label for="conversionType" class="form-label">Conversion Type</label>
+                                <select class="form-select" id="conversionType" required>
+                                    <option value="length">Length</option>
+                                    <option value="weight">Weight</option>
+                                    <option value="temperature">Temperature</option>
+                                    <option value="area">Area</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="speed">Speed</option>
+                                </select>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-5">
+                                    <label for="fromUnit" class="form-label">From</label>
+                                    <select class="form-select" id="fromUnit" required></select>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end justify-content-center mb-2">
+                                    <button type="button" class="btn btn-link" id="swapUnits">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="toUnit" class="form-label">To</label>
+                                    <select class="form-select" id="toUnit" required></select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-5">
+                                    <label for="fromValue" class="form-label">Value</label>
+                                    <input type="number" class="form-control" id="fromValue" required step="any">
+                                </div>
+                                <div class="col-md-2"></div>
+                                <div class="col-md-5">
+                                    <label for="toValue" class="form-label">Result</label>
+                                    <input type="text" class="form-control" id="toValue" readonly>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Convert</button>
+                                <button type="button" class="btn btn-secondary ms-2" id="resetForm">Reset</button>
+                            </div>
+                        </form>
+
+                        <div class="mt-4">
+                            <h4>Common Conversions</h4>
+                            <div id="commonConversions" class="table-responsive">
+                                <!-- Will be populated based on conversion type -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Unit conversion data
+        const units = {
+            length: {
+                units: {
+                    mm: { name: 'Millimeters (mm)', factor: 0.001 },
+                    cm: { name: 'Centimeters (cm)', factor: 0.01 },
+                    m: { name: 'Meters (m)', factor: 1 },
+                    km: { name: 'Kilometers (km)', factor: 1000 },
+                    in: { name: 'Inches (in)', factor: 0.0254 },
+                    ft: { name: 'Feet (ft)', factor: 0.3048 },
+                    yd: { name: 'Yards (yd)', factor: 0.9144 },
+                    mi: { name: 'Miles (mi)', factor: 1609.344 }
+                },
+                base: 'm'
+            },
+            weight: {
+                units: {
+                    mg: { name: 'Milligrams (mg)', factor: 0.001 },
+                    g: { name: 'Grams (g)', factor: 1 },
+                    kg: { name: 'Kilograms (kg)', factor: 1000 },
+                    oz: { name: 'Ounces (oz)', factor: 28.3495 },
+                    lb: { name: 'Pounds (lb)', factor: 453.592 }
+                },
+                base: 'g'
+            },
+            temperature: {
+                units: {
+                    C: { name: 'Celsius (°C)' },
+                    F: { name: 'Fahrenheit (°F)' },
+                    K: { name: 'Kelvin (K)' }
+                },
+                special: true
+            },
+            area: {
+                units: {
+                    mm2: { name: 'Square Millimeters (mm²)', factor: 0.000001 },
+                    cm2: { name: 'Square Centimeters (cm²)', factor: 0.0001 },
+                    m2: { name: 'Square Meters (m²)', factor: 1 },
+                    km2: { name: 'Square Kilometers (km²)', factor: 1000000 },
+                    in2: { name: 'Square Inches (in²)', factor: 0.00064516 },
+                    ft2: { name: 'Square Feet (ft²)', factor: 0.092903 },
+                    ac: { name: 'Acres', factor: 4046.86 }
+                },
+                base: 'm2'
+            },
+            volume: {
+                units: {
+                    ml: { name: 'Milliliters (ml)', factor: 0.001 },
+                    l: { name: 'Liters (l)', factor: 1 },
+                    m3: { name: 'Cubic Meters (m³)', factor: 1000 },
+                    gal: { name: 'Gallons (US)', factor: 3.78541 },
+                    qt: { name: 'Quarts (US)', factor: 0.946353 },
+                    pt: { name: 'Pints (US)', factor: 0.473176 }
+                },
+                base: 'l'
+            },
+            speed: {
+                units: {
+                    mps: { name: 'Meters per Second (m/s)', factor: 1 },
+                    kph: { name: 'Kilometers per Hour (km/h)', factor: 0.277778 },
+                    mph: { name: 'Miles per Hour (mph)', factor: 0.44704 },
+                    knot: { name: 'Knots', factor: 0.514444 }
+                },
+                base: 'mps'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('converterForm');
+            const conversionType = document.getElementById('conversionType');
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const fromValue = document.getElementById('fromValue');
+            const toValue = document.getElementById('toValue');
+            const resetButton = document.getElementById('resetForm');
+            const swapButton = document.getElementById('swapUnits');
+
+            // Initialize units for default conversion type
+            updateUnitSelects(conversionType.value);
+
+            // Update units when conversion type changes
+            conversionType.addEventListener('change', () => {
+                updateUnitSelects(conversionType.value);
+                updateCommonConversions(conversionType.value);
+            });
+
+            // Handle form submission
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                convert();
+            });
+
+            // Handle unit swap
+            swapButton.addEventListener('click', () => {
+                const tempUnit = fromUnit.value;
+                fromUnit.value = toUnit.value;
+                toUnit.value = tempUnit;
+                if (fromValue.value) convert();
+            });
+
+            // Reset form
+            resetButton.addEventListener('click', () => {
+                form.reset();
+                toValue.value = '';
+                updateUnitSelects(conversionType.value);
+            });
+
+            // Update unit select options
+            function updateUnitSelects(type) {
+                const unitData = units[type].units;
+                fromUnit.innerHTML = '';
+                toUnit.innerHTML = '';
+
+                Object.entries(unitData).forEach(([key, data]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = data.name;
+                    fromUnit.appendChild(option.cloneNode(true));
+                    toUnit.appendChild(option);
+                });
+
+                // Set default selections
+                if (type === 'temperature') {
+                    fromUnit.value = 'C';
+                    toUnit.value = 'F';
+                }
+            }
+
+            // Convert values
+            function convert() {
+                const type = conversionType.value;
+                const from = fromUnit.value;
+                const to = toUnit.value;
+                const value = parseFloat(fromValue.value);
+
+                if (isNaN(value)) {
+                    toValue.value = '';
+                    return;
+                }
+
+                let result;
+                if (type === 'temperature') {
+                    result = convertTemperature(value, from, to);
+                } else {
+                    const unitData = units[type];
+                    const fromFactor = unitData.units[from].factor;
+                    const toFactor = unitData.units[to].factor;
+                    result = (value * fromFactor) / toFactor;
+                }
+
+                toValue.value = result.toFixed(4);
+            }
+
+            // Special temperature conversion
+            function convertTemperature(value, from, to) {
+                let celsius;
+                
+                // Convert to Celsius first
+                switch(from) {
+                    case 'C': celsius = value; break;
+                    case 'F': celsius = (value - 32) * 5/9; break;
+                    case 'K': celsius = value - 273.15; break;
+                }
+
+                // Convert from Celsius to target unit
+                switch(to) {
+                    case 'C': return celsius;
+                    case 'F': return (celsius * 9/5) + 32;
+                    case 'K': return celsius + 273.15;
+                }
+            }
+
+            // Update common conversions table
+            function updateCommonConversions(type) {
+                const container = document.getElementById('commonConversions');
+                const unitData = units[type];
+                let html = '<table class="table table-striped"><thead><tr><th>From</th><th>To</th><th>Example</th></tr></thead><tbody>';
+                
+                if (type === 'temperature') {
+                    html += `
+                        <tr><td>0°C</td><td>32°F</td><td>Water freezing point</td></tr>
+                        <tr><td>100°C</td><td>212°F</td><td>Water boiling point</td></tr>
+                        <tr><td>37°C</td><td>98.6°F</td><td>Body temperature</td></tr>
+                    `;
+                } else {
+                    const baseUnit = unitData.base;
+                    const examples = {
+                        length: { value: 1, desc: 'meter' },
+                        weight: { value: 1, desc: 'gram' },
+                        area: { value: 1, desc: 'square meter' },
+                        volume: { value: 1, desc: 'liter' },
+                        speed: { value: 1, desc: 'meter per second' }
+                    };
+
+                    Object.entries(unitData.units).forEach(([unit, data]) => {
+                        if (unit !== baseUnit) {
+                            const value = examples[type].value;
+                            const result = (value * unitData.units[baseUnit].factor) / data.factor;
+                            html += `
+                                <tr>
+                                    <td>1 ${unitData.units[baseUnit].name}</td>
+                                    <td>${result.toFixed(4)} ${data.name}</td>
+                                    <td>Standard ${examples[type].desc} conversion</td>
+                                </tr>
+                            `;
+                        }
+                    });
+                }
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
+
+            // Initialize common conversions
+            updateCommonConversions(conversionType.value);
+        });
+
+        // Add converter specific styles
+        const converterStyles = document.createElement('style');
+        converterStyles.textContent = `
+            .form-label {
+                font-weight: 500;
+                color: var(--bs-gray-700);
+            }
+            
+            #swapUnits {
+                padding: 0.5rem;
+                color: var(--bs-primary);
+            }
+            
+            #swapUnits:hover {
+                color: var(--bs-primary-darker);
+            }
+            
+            .table th {
+                background-color: var(--bs-primary);
+                color: white;
+            }
+            
+            .result {
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: var(--bs-primary);
+            }
+        `;
+        document.head.appendChild(converterStyles);
+    </script>
+</body>
+</html> 

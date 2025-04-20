@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Post Generator - Free Online Tool</title>
+    <meta name="description" content="Create beautiful Instagram posts with our free online generator. Choose from templates, add text, and customize your design.">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .canvas-container {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .template-item {
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        
+        .template-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .template-item img {
+            width: 100%;
+            height: auto;
+        }
+        
+        .tools-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        .font-size-control {
+            width: 80px;
+        }
+        
+        .preview-container {
+            aspect-ratio: 1;
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-container"></div>
+
+    <main class="container py-4">
+        <!-- Tool Section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3">Instagram Post Generator</h1>
+                <p class="lead mb-4">Create eye-catching Instagram posts in minutes</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Templates Panel -->
+            <div class="col-md-3">
+                <div class="tools-panel mb-4">
+                    <h4 class="mb-3">Templates</h4>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="template-item">
+                                <img src="../assets/images/template1.jpg" alt="Template 1">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="template-item">
+                                <img src="../assets/images/template2.jpg" alt="Template 2">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="template-item">
+                                <img src="../assets/images/template3.jpg" alt="Template 3">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="template-item">
+                                <img src="../assets/images/template4.jpg" alt="Template 4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tools-panel">
+                    <h4 class="mb-3">Text Tools</h4>
+                    <div class="mb-3">
+                        <label class="form-label">Font Family</label>
+                        <select class="form-select" id="fontFamily">
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Verdana">Verdana</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Font Size</label>
+                        <input type="number" class="form-control font-size-control" id="fontSize" value="24">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Text Color</label>
+                        <input type="color" class="color-picker" id="textColor" value="#000000">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Background Color</label>
+                        <input type="color" class="color-picker" id="bgColor" value="#ffffff">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Area -->
+            <div class="col-md-6">
+                <div class="preview-container" id="previewContainer">
+                    <canvas id="canvas" width="1080" height="1080"></canvas>
+                </div>
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary btn-lg me-2" id="addTextBtn">
+                        <i class="fas fa-text-height me-2"></i>Add Text
+                    </button>
+                    <button class="btn btn-success btn-lg" id="downloadBtn">
+                        <i class="fas fa-download me-2"></i>Download
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layers Panel -->
+            <div class="col-md-3">
+                <div class="tools-panel">
+                    <h4 class="mb-3">Layers</h4>
+                    <div class="list-group" id="layersList">
+                        <!-- Layers will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Features</h2>
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div class="p-4">
+                            <i class="fas fa-palette fa-3x text-primary mb-3"></i>
+                            <h4>Beautiful Templates</h4>
+                            <p>Choose from our collection of professionally designed templates</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="p-4">
+                            <i class="fas fa-text-height fa-3x text-primary mb-3"></i>
+                            <h4>Custom Text</h4>
+                            <p>Add and style text with various fonts and colors</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="p-4">
+                            <i class="fas fa-image fa-3x text-primary mb-3"></i>
+                            <h4>Perfect Size</h4>
+                            <p>All posts are optimized for Instagram's requirements</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Fabric.js for canvas manipulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize canvas
+            const canvas = new fabric.Canvas('canvas', {
+                width: 1080,
+                height: 1080
+            });
+
+            // Set white background
+            canvas.backgroundColor = '#ffffff';
+            canvas.renderAll();
+
+            // Add text button click handler
+            document.getElementById('addTextBtn').addEventListener('click', function() {
+                const text = new fabric.IText('Double click to edit', {
+                    left: 100,
+                    top: 100,
+                    fontFamily: document.getElementById('fontFamily').value,
+                    fontSize: parseInt(document.getElementById('fontSize').value),
+                    fill: document.getElementById('textColor').value
+                });
+                canvas.add(text);
+                canvas.setActiveObject(text);
+                updateLayers();
+            });
+
+            // Download button click handler
+            document.getElementById('downloadBtn').addEventListener('click', function() {
+                const dataURL = canvas.toDataURL({
+                    format: 'png',
+                    quality: 1
+                });
+                const link = document.createElement('a');
+                link.download = 'instagram-post.png';
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            // Update layers list
+            function updateLayers() {
+                const layersList = document.getElementById('layersList');
+                layersList.innerHTML = '';
+                canvas.getObjects().forEach((obj, index) => {
+                    const layer = document.createElement('button');
+                    layer.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                    layer.innerHTML = `
+                        Layer ${index + 1}
+                        <i class="fas fa-times text-danger"></i>
+                    `;
+                    layer.onclick = () => canvas.setActiveObject(obj);
+                    layer.querySelector('.fa-times').onclick = (e) => {
+                        e.stopPropagation();
+                        canvas.remove(obj);
+                        updateLayers();
+                    };
+                    layersList.appendChild(layer);
+                });
+            }
+
+            // Font controls
+            document.getElementById('fontFamily').addEventListener('change', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    activeObject.set('fontFamily', this.value);
+                    canvas.renderAll();
+                }
+            });
+
+            document.getElementById('fontSize').addEventListener('change', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    activeObject.set('fontSize', parseInt(this.value));
+                    canvas.renderAll();
+                }
+            });
+
+            document.getElementById('textColor').addEventListener('input', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    activeObject.set('fill', this.value);
+                    canvas.renderAll();
+                }
+            });
+
+            document.getElementById('bgColor').addEventListener('input', function() {
+                canvas.backgroundColor = this.value;
+                canvas.renderAll();
+            });
+        });
+    </script>
+</body>
+</html> 
