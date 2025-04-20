@@ -1,18 +1,18 @@
 // Tool data structure
 const toolsData = {
     "image-tools": [
-        { name: "Image to PNG Converter", icon: "fa-image", link: "tools/image-to-png.html" },
-        { name: "Image to JPG Converter", icon: "fa-image", link: "tools/image-to-jpg.html" },
-        { name: "Image Resizer", icon: "fa-expand", link: "tools/image-resizer.html" },
-        { name: "Image Compressor", icon: "fa-compress", link: "tools/image-compressor.html" },
-        { name: "Image Cropper", icon: "fa-crop", link: "tools/image-cropper.html" }
+        { name: "Image to PNG Converter", icon: "fa-image", link: "/all-in-one-tools/tools/image-to-png.html" },
+        { name: "Image to JPG Converter", icon: "fa-image", link: "/all-in-one-tools/tools/image-to-jpg.html" },
+        { name: "Image Resizer", icon: "fa-expand", link: "/all-in-one-tools/tools/image-resizer.html" },
+        { name: "Image Compressor", icon: "fa-compress", link: "/all-in-one-tools/tools/image-compressor.html" },
+        { name: "Image Cropper", icon: "fa-crop", link: "/all-in-one-tools/tools/image-cropper.html" }
     ],
     "pdf-tools": [
-        { name: "PDF to Image Converter", icon: "fa-file-image", link: "tools/pdf-to-image.html" },
-        { name: "PDF Merger", icon: "fa-object-group", link: "tools/pdf-merger.html" },
-        { name: "PDF Splitter", icon: "fa-cut", link: "tools/pdf-splitter.html" },
-        { name: "PDF Compressor", icon: "fa-compress", link: "tools/pdf-compressor.html" },
-        { name: "PDF Password Protector", icon: "fa-lock", link: "tools/pdf-password.html" }
+        { name: "PDF to Image Converter", icon: "fa-file-image", link: "/all-in-one-tools/tools/pdf-to-image.html" },
+        { name: "PDF Merger", icon: "fa-object-group", link: "/all-in-one-tools/tools/pdf-merger.html" },
+        { name: "PDF Splitter", icon: "fa-cut", link: "/all-in-one-tools/tools/pdf-splitter.html" },
+        { name: "PDF Compressor", icon: "fa-compress", link: "/all-in-one-tools/tools/pdf-compressor.html" },
+        { name: "PDF Password Protector", icon: "fa-lock", link: "/all-in-one-tools/tools/pdf-password.html" }
     ],
     "social-media-tools": [
         { name: "Instagram Post Generator", icon: "fa-instagram", link: "tools/instagram-post.html" },
@@ -62,11 +62,11 @@ async function loadComponents() {
         const isToolPage = currentPath.includes('/tools/');
         
         // Calculate the correct base path
-        let basePath = '';
+        let basePath = '/all-in-one-tools/';
         if (isCategoryPage) {
-            basePath = '../';
+            basePath = '/all-in-one-tools/';
         } else if (isToolPage) {
-            basePath = '../';
+            basePath = '/all-in-one-tools/';
         }
         
         const headerResponse = await fetch(`${basePath}components/header.html`);
@@ -118,7 +118,7 @@ function displayTools() {
                                     <i class="fas ${tool.icon} fa-3x"></i>
                                 </div>
                                 <h5 class="card-title">${tool.name}</h5>
-                                <a href="tools/${tool.link.split('/').pop()}" class="btn btn-primary">Use Tool</a>
+                                <a href="/all-in-one-tools${tool.link}" class="btn btn-primary">Use Tool</a>
                             </div>
                         </div>
                     </div>
